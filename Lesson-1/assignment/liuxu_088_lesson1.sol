@@ -1,27 +1,34 @@
 pragma solidity ^0.4.14;
 
 contract Payroll {
+
     uint constant payDuration = 10 seconds;
 
     address owner;
-    uint salary;
-    address employee;
     uint lastPayday;
+    mapping(address => uint) public employeeSalary;
+
 
     function Payroll() {
         owner = msg.sender;
     }
     
-    function updateEmployee(address e, uint s) {
+    function setEmployeeSalary(address employee, uint salaryNum) public{
+        require(msg.sender == owner);
+        employeeSalary[employee] = salaryNum * 1 ether;
+    }
+
+
+    function updateEmployee(address employee, uint salary) public{
+        
         require(msg.sender == owner);
         
         if (employee != 0x0) {
-            uint payment = salary * (now - lastPayday) / payDuration;
+            uint payment = employeeSalary[employee]  * (now - lastPayday) / payDuration;
             employee.transfer(payment);
         }
-        
-        employee = e;
-        salary = s * 1 ether;
+
+        employeeSalary[employee] = salary * 1 ether; 
         lastPayday = now;
     }
     
@@ -30,7 +37,7 @@ contract Payroll {
     }
     
     function calculateRunway() returns (uint) {
-        return this.balance / salary;
+        return this.balance / employeeSalary[owner];
     }
     
     function hasEnoughFund() returns (bool) {
@@ -38,13 +45,13 @@ contract Payroll {
     }
     
     function getPaid() {
-        require(msg.sender == employee);
+        require(employeeSalary[owner] != 0);
         
         uint nextPayday = lastPayday + payDuration;
         assert(nextPayday < now);
 
         lastPayday = nextPayday;
-        employee.transfer(salary);
+        owner.transfer(employeeSalary[owner]);
     }
 }
 
