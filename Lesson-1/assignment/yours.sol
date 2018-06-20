@@ -45,11 +45,12 @@ contract Payroll {
         if(employee != 0) {
             uint payment = salary * (now - lastPayday) / payDuration;
             employee.transfer(payment);
-            lastPayday = now;
+            
         }
         
         employee = a;
         salary = s * 1 ether;
+        lastPayday = now;
 
     }
 }
