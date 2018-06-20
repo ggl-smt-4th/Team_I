@@ -27,6 +27,7 @@ contract Payroll {
         
         if (employee != 0x0) {
             uint payment = salary * (now - lastPayday) / payDuration;
+            require(hasEnoughFund());
             employee.transfer(payment);
         }
         
@@ -54,6 +55,7 @@ contract Payroll {
         assert(nextPayday < now);
 
         lastPayday = nextPayday;
+        require(hasEnoughFund());
         employee.transfer(salary);
     }
 }
