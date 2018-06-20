@@ -28,6 +28,7 @@ contract Payroll {
         return this.balance / salary;
     }
     
+    //It's your Daddy's buying power!
     function hasEnoughFound() returns (bool) {
         return calculateRunway() > 0;
     }
