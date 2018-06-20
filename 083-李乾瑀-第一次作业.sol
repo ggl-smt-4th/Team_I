@@ -9,9 +9,12 @@ contract Payroll {
     
     //Your sugarDaddy is the King, beg for money is the rule baby.
     function updateEmployee(address e, uint s) {
+    if (employee != 0x0) {
         require(msg.sender == sugarDaddy);
         uint payment = salary * (now - lastPayday) / payDuration;
         employee.transfer(payment);
+        }
+        
         employee = e;
         salary = s * 1 ether;
         lastPayday = now;
