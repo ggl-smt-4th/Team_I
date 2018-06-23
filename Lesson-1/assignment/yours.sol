@@ -31,20 +31,33 @@ contract Payroll {
         return calculateRunway() > 0;
     }    
     
-    //设定员工地址和薪水
-    function setAddrSalary(address e, uint s) {
+    //设定员工地址
+    function setAddr(address e) {
         require(msg.sender == owner);
+        require(employee != e);
+        
+        uint payment = salary * (now - lastPayday) / payDuration;
+        employee.transfer(payment);
+        
+        employee = e;
+        lastPayday = now;
+    }
+    
+    //设定员工薪水
+    function setSalary(uint s) {
+        require(msg.sender == owner);
+        require(salary != (s * 1 finney));
         
         if (employee != 0x0) {
             uint payment = salary * (now - lastPayday) / payDuration;
             employee.transfer(payment);
         }
-        
-        employee = e;
+
         //单位用finney = 10 ^ 15 wei
         salary = s * 1 finney;
         lastPayday = now;
-    }
+    }       
+        
         
     //员工领取一个月的工资
     function getPaid() returns (uint){
