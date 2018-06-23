@@ -37,10 +37,14 @@ transaction cost 	30003 gas,execution cost 	8731 gas
     function addEmployee(address employeeId,uint salary) {
         require(msg.sender == owner);
         
+        salary = salary * 1 ether;
+        uint nextTotalSalary = totalSalary + salary;
+        
+        assert(nextTotalSalary <= this.balance);
+        
         var (employee,index) = _findEmployee(employeeId);
         assert(employee.id == 0x0);
-        salary = salary * 1 ether;
-        totalSalary += salary;
+        totalSalary = nextTotalSalary;
         employees.push(Employee(employeeId,salary,now));
     }
     
