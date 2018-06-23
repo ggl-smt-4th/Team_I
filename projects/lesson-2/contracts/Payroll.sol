@@ -69,7 +69,7 @@ contract Payroll {
         
         _partialPaid(employee);
         
-        uint nextTotalSalary = totalSalary - employee.salary + salary * 1 ether;
+        totalSalary = totalSalary - employee.salary + salary * 1 ether;
         employee.salary = salary * 1 ether;
         employee.lastPayDay = now;
     }
