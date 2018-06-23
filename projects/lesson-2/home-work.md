@@ -1,4 +1,4 @@
-### Gas消耗记录：
+### 1.Gas消耗记录：
 * 添加第一个员工：
 transaction cost	22974 gas,execution cost	1702 gas 
 
@@ -25,3 +25,5 @@ transaction cost 	29222 gas,execution cost 	7950 gas
 
 * 添加第十个员工：
 transaction cost 	30003 gas,execution cost 	8731 gas 
+
+### 2.calculateRunway函数优化思路：
