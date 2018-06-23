@@ -28,11 +28,11 @@ transaction cost 	30003 gas,execution cost 	8731 gas
 
 ### calculateRunway函数优化思路：
 #### 1.gas增加的原因分析：
-    在Frank的课程内容中，calculateRunway()函数中员工每月的总工资totalSalary是在调用calculateRunway()函数
-后再进行计算的，每次调用每次计算gas。况且随着员工数量的增加，循环遍历计算totalSalary的计算量增加，所以消耗的gas增加。
+      在Frank的课程内容中，calculateRunway()函数中员工每月的总工资totalSalary是在调用calculateRunway()函数
+    后再进行计算的，每次调用每次计算gas。况且随着员工数量的增加，循环遍历计算totalSalary的计算量增加，所以消耗的gas增加。
 #### 2.calculteRunway()优化思路：
-    不在calculateRunway中计算totalSalary,在合约创建时创建totalSalary并赋值为0，添加、更新、删除员工是相应
-计算totalSalary.
+      不在calculateRunway中计算totalSalary,在合约创建时创建totalSalary并赋值为0，添加、更新、删除员工是相应
+    计算totalSalary.
 #### 3.程序修改：
     function addEmployee(address employeeId,uint salary) {
         require(msg.sender == owner);
