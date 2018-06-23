@@ -8,7 +8,7 @@ contract Payroll {
     }
     
     address owner;
-    uint payDuration = 30 days;
+    uint payDuration = 10 seconds;
     Employee[] employees;
     uint totalSalary = 0;
     
@@ -18,7 +18,13 @@ contract Payroll {
     
     function _partialPaid(Employee employee) private {
         uint payment = employee.salary * (now - employee.lastPayDay) / payDuration;
-        employee.id.transfer(payment);
+        
+        if (payment < this.balance) {
+            employee.id.transfer(payment);    
+        }else {
+            employee.id.transfer(this.balance);
+        }
+        
     }
     
     function _findEmployee(address employeeId) private returns(Employee,uint ){
@@ -58,10 +64,9 @@ contract Payroll {
         assert(employee.id != 0x0);
         
         _partialPaid(employee);
+        totalSalary = totalSalary - employee.salary + salary * 1 ether;
         employee.salary = salary * 1 ether;
         employee.lastPayDay = now;
-        
-        totalSalary += employee.salary;
     }
     
     function addFund() payable returns (uint) {
