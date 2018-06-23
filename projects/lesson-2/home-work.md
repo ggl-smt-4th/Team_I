@@ -76,3 +76,6 @@ transaction cost 	30003 gas,execution cost 	8731 gas
         
         return this.balance / totalSalary;
     }
+#### 4.程序修改后的gas消耗：
+       transaction cost 22132 gas，execution cost 860 gas 
+       注：gas的消耗不会随着员工数量的增加而增加。
