@@ -28,6 +28,45 @@ transaction cost 	30003 gas,execution cost 	8731 gas
 
 ### calculateRunway函数优化思路：
 #### 1.gas增加的原因分析：
-在Frank的课程内容中，calculateRunway()函数中员工每月的总工资totalSalary是在调用calculateRunway()函数后再进行计算的，每次调用每次计算消耗gas。况且随着员工数量的增加，循环遍历计算totalSalary的计算量增加，所以消耗的gas增加。
+    在Frank的课程内容中，calculateRunway()函数中员工每月的总工资totalSalary是在调用calculateRunway()函数后再进行计算的，每次调用每次计算gas。况且随着员工数量的增加，循环遍历计算totalSalary的计算量增加，所以消耗的gas增加。
 #### 2.calculteRunway()优化思路：
-
+    不在calculateRunway中计算totalSalary,在合约创建时创建totalSalary并赋值为0，添加、更新、删除员工是相应计算totalSalary.
+#### 3.程序修改：
+    function addEmployee(address employeeId,uint salary) {
+        require(msg.sender == owner);
+        
+        var (employee,index) = _findEmployee(employeeId);
+        assert(employee.id == 0x0);
+        salary = salary * 1 ether;
+        totalSalary += salary;
+        employees.push(Employee(employeeId,salary,now));
+    }
+    
+    function removeEmployee(address employeeId) {
+        require(msg.sender == owner);
+        
+        var (employee,index) = _findEmployee(employeeId);
+        assert(employee.id != 0x0);
+        
+        _partialPaid(employee);
+        totalSalary -= employees[index].salary;
+        delete employees[index];
+        employees[index] = employees[employees.length - 1];
+        employees.length -= 1;
+    }
+    
+    function updateEmployee(address employeeId,uint salary) {
+        require(msg.sender == owner);
+        var (employee,index) = _findEmployee(employeeId);
+        assert(employee.id != 0x0);
+        
+        _partialPaid(employee);
+        totalSalary = totalSalary - employee.salary + salary * 1 ether;
+        employee.salary = salary * 1 ether;
+        employee.lastPayDay = now;
+    }
+    
+    function calculateRunway() returns (uint) {
+        
+        return this.balance / totalSalary;
+    }
