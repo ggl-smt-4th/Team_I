@@ -14,7 +14,7 @@ contract Payroll {
     
     uint salarysum = 0;
 
-    function Payroll() public{
+    function Payroll() payable public{
         owner = msg.sender;
     }
     
@@ -34,13 +34,13 @@ contract Payroll {
         //return ((0x0, 0, 0), 0);
     }
 
-    function addEmployee (address employeeId, uint salary) public {
+    function addEmployee (address employeeAddress, uint salary) public {
         require(msg.sender == owner);
-        var(employee,index) = _findEmployee(employeeId);
+        var(employee,index) = _findEmployee(employeeAddress);
         assert(employee.id == 0x0);
         
         uint sa = salary * 1 ether;
-        employees.push(Employee(employeeId, sa, now));
+        employees.push(Employee(employeeAddress, sa, now));
         salarysum += sa;
     }
     
@@ -58,9 +58,9 @@ contract Payroll {
     }
     
     //该函数只能修改员工的地址，不能修改员工的薪水
-    function updateEmployee(address employeeId, uint salary) public {
+    function updateEmployee(address employeeAddress, uint salary) public {
         require(msg.sender == owner);
-        var(employee,index) = _findEmployee(employeeId);
+        var(employee,index) = _findEmployee(employeeAddress);
         assert(employee.id != 0x0);
         _partialPaid(employee);
         uint sa = salary * 1 ether;
@@ -89,15 +89,15 @@ contract Payroll {
         return this.balance;
     }
 
-    function getFund() public returns (uint){
+    function getFund() public view returns (uint){
         return (this.balance / 1 ether);
     }
     
-    function calculateRunway() public returns (uint) {
+    function calculateRunway() public view returns (uint) {
         return this.balance / salarysum;
     }
     
-    function hasEnoughFund() public returns (bool) {
+    function hasEnoughFund() public view returns (bool) {
         return calculateRunway() > 0;
     }
     
