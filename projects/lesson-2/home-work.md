@@ -1,3 +1,5 @@
+###GAS消耗
+
 在每增加一个员工，运行改进前的函数calculateRunwayOrigin的gas如下：
 
 1. transaction cost 22947 gas (Cost only applies when called by a contract)
@@ -36,5 +38,6 @@ execution cost 8659 gas (Cost only applies when called by a contract)
 transaction cost 22176 gas (Cost only applies when called by a contract)
 execution cost 904 gas (Cost only applies when called by a contract)
 
-优化思路：
-增加变量salarysum，在增加或者删除员工的时候就计算好salarysum，不需要每次在调用calculateRunway时都便利所有员工，直接calculateRunway运算即可。
+###优化思路
+
+增加变量salarysum，在增加或者删除员工的时候就计算好salarysum，不需要每次在调用calculateRunway时都遍历所有员工，直接calculateRunway运算即可。
