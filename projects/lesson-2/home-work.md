@@ -49,3 +49,7 @@
  to 	Payroll.calculateRunway() 0x5c3c1540dfcd795b0aca58a496e3c30fe2405b07
  transaction cost 	30003 gas (Cost only applies when called by a contract)
  execution cost 	8731 gas (Cost only applies when called by a contract)
+ 
+ 
+ 每次添加新的员工，数组的长度将增加1，所以导致循环计算的次数增加，gas消耗增加。
+ 
