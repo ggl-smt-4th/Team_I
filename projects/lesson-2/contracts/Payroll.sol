@@ -97,6 +97,16 @@ contract Payroll {
         return this.balance / salarysum;
     }
     
+    function calculateRunwayOrigin() public view returns (uint) {
+        // Calculate the total salary
+        uint totalSalary = 0;
+        for (uint i = 0; i < employees.length; ++i) {
+            totalSalary += employees[i].salary;
+        }
+
+        return this.balance / totalSalary;
+    }    
+    
     function hasEnoughFund() public view returns (bool) {
         return calculateRunway() > 0;
     }
