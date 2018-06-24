@@ -34,7 +34,7 @@ contract Payroll {
         //return ((0x0, 0, 0), 0);
     }
 
-    function addEmployee(address employeeId, uint salary) {
+    function addEmployee (address employeeId, uint salary) public {
         require(msg.sender == owner);
         var(employee,index) = _findEmployee(employeeId);
         assert(employee.id == 0x0);
@@ -44,7 +44,7 @@ contract Payroll {
         salarysum += sa;
     }
     
-    function removeEmployee(address employeeId) {
+    function removeEmployee(address employeeId) public {
         require(msg.sender == owner);
         var(employee,index) = _findEmployee(employeeId);
         assert(employee.id != 0x0);
@@ -58,7 +58,7 @@ contract Payroll {
     }
     
     //该函数只能修改员工的地址，不能修改员工的薪水
-    function updateEmployee(address employeeId, uint salary) {
+    function updateEmployee(address employeeId, uint salary) public {
         require(msg.sender == owner);
         var(employee,index) = _findEmployee(employeeId);
         assert(employee.id != 0x0);
@@ -70,7 +70,7 @@ contract Payroll {
     }
     
     //该函数用来修改员工的地址
-    function updateEmployeeid(address OldemployeeId, address NewemployeeId) {
+    function updateEmployeeid(address OldemployeeId, address NewemployeeId) public {
         require(msg.sender == owner);
         var(employee,index) = _findEmployee(OldemployeeId);
         assert(employee.id != 0x0);
@@ -79,29 +79,29 @@ contract Payroll {
         employees[index].lastPayday = now;
     }    
     
-    function getEmployee(address employeeId) returns (address,uint){
+    function getEmployee(address employeeId) public returns (address,uint) {
         var(employee,index) = _findEmployee(employeeId);
         assert(employee.id != 0x0);
         return (employee.id,employee.salary);
     }    
     
-    function addFund() payable returns (uint) {
+    function addFund() payable public returns (uint) {
         return this.balance;
     }
 
-    function getFund() returns (uint){
+    function getFund() public returns (uint){
         return (this.balance / 1 ether);
     }
     
-    function calculateRunway() returns (uint) {
+    function calculateRunway() public returns (uint) {
         return this.balance / salarysum;
     }
     
-    function hasEnoughFund() returns (bool) {
+    function hasEnoughFund() public returns (bool) {
         return calculateRunway() > 0;
     }
     
-    function getPaid() {
+    function getPaid() public {
         var(employee,index) = _findEmployee(msg.sender);
         assert(employee.id != 0x0);
         
