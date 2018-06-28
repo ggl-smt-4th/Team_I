@@ -58,7 +58,7 @@ contract Payroll is Ownable {
         delete employees[oldAddress];
     }
 
-    function updateEmployee(address employeeId, uint salary) public onlyOwner employeeExist(employeeId){
+    function updateEmployee(address employeeId, uint salary) public payable onlyOwner employeeExist(employeeId){
         // TODO: your code here
         var employee = employees[employeeId];
         _partialPaid(employee);
@@ -82,7 +82,7 @@ contract Payroll is Ownable {
         return calculateRunway() > 0;
     }
 
-    function getPaid() public employeeExist(msg.sender){
+    function getPaid() public payable employeeExist(msg.sender){
         // TODO: your code here
         var employee = employees[msg.sender];
 
