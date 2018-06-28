@@ -24,8 +24,10 @@ contract Payroll is Ownable {
         assert(employee.id != 0x0);
         _;
     }
-
-    function _partialPaid(Employee employee) private{
+    function Payroll() payable public{
+        
+    } 
+    function _partialPaid(Employee employee) payable private {
         uint payment = employee.salary
              .mul(now.sub(employee.lastPayday)).div(payDuration);
         employee.id.transfer(payment);
@@ -41,7 +43,7 @@ contract Payroll is Ownable {
 
     }
 
-    function removeEmployee(address employeeId) public onlyOwner employeeExist(employeeId){
+    function removeEmployee(address employeeId) public payable onlyOwner employeeExist(employeeId){
         // TODO: your code here
         var employee = employees[employeeId];
 
@@ -51,14 +53,14 @@ contract Payroll is Ownable {
 
     }
 
-    function changePaymentAddress(address oldAddress, address newAddress) public employeeExist(oldAddress){
+    function changePaymentAddress(address oldAddress, address newAddress) public onlyOwner employeeExist(oldAddress){
         // TODO: your code here
         require(oldAddress != newAddress && newAddress != 0x0);
         employees[newAddress] = Employee(newAddress, employees[oldAddress].salary, employees[oldAddress].lastPayday);
         delete employees[oldAddress];
     }
 
-    function updateEmployee(address employeeId, uint salary) public payable onlyOwner employeeExist(employeeId){
+    function updateEmployee(address employeeId, uint salary) payable public onlyOwner employeeExist(employeeId){
         // TODO: your code here
         var employee = employees[employeeId];
         _partialPaid(employee);
@@ -82,7 +84,7 @@ contract Payroll is Ownable {
         return calculateRunway() > 0;
     }
 
-    function getPaid() public payable employeeExist(msg.sender){
+    function getPaid() payable public employeeExist(msg.sender){
         // TODO: your code here
         var employee = employees[msg.sender];
 
