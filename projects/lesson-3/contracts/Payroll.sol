@@ -7,65 +7,85 @@ contract Payroll is Ownable {
 
     using SafeMath for uint;
 
+    /**
+     * We are using mapping here, the key is already the address.
+     */
     struct Employee {
-        // TODO, your code here
-        address id;
         uint salary;
-        uint lastPayday; 
+        uint lastPayday;
     }
 
-    uint constant payDuration = 30 days;
-    uint public totalSalary = 0;
-
-    function Payroll() payable public {
-        // TODO: your code here
-        owner = msg.sender;
-    }
-    
-    modifier employeeExist(address employeeId) {
-        var employee = employees[employeeId];
-        assert(employee.id != 0x0);
-        _;
-    }    
-   
     modifier onlyOwner {
         require(msg.sender == owner);
         _;
     }
 
-    function addEmployee(address employeeId, uint salary) onlyOwner public {
-        // TODO: your code here
-        var employee = employees[employeeId];
-        assert(employee.id == 0x0);
-        totalSalary += salary * 1 ether;
-        employees[employeeAddress] = Employee(employeeId, salary * 1 ether, now);
+    modifier shouldExist(address employeeId) {
+        assert(employees[employeeId].lastPayday != 0);
+        _;
     }
 
-    function removeEmployee(address employeeId) onlyOwner employeeExist(employeeId) public {
-        // TODO: your code here
-        var employee = employees[employeeId];
-        
-        _partialPaid(employee);
-        totalSalary -= employees[employeeId].salary;
+    modifier shouldNotExist(address employeeId) {
+        assert(employees[employeeId].lastPayday == 0);
+        _;
+    }
+
+    uint constant payDuration = 10 seconds;
+    uint public totalSalary = 0;
+
+    /**
+     * This contract is simple, We update employees by the key directly
+     * instead of updating a copy so that we could save some gas.
+     */
+    mapping(address => Employee) public employees;
+
+    function Payroll() payable public Ownable {
+        owner = msg.sender;
+    }
+
+    function _partialPaid(address employeeId) private {
+        uint payment = employees[employeeId].salary
+        .mul(now.sub(employees[employeeId].lastPayday))
+        .div(payDuration);
+        employeeId.transfer(payment);
+    }
+
+    function addEmployee(address employeeId, uint salary) public
+    onlyOwner shouldNotExist(employeeId) {
+        salary = salary.mul(1 ether);
+        employees[employeeId] = Employee(salary, now);
+
+        totalSalary = totalSalary.add(salary);
+    }
+
+    function removeEmployee(address employeeId) public
+    onlyOwner shouldExist(employeeId) {
+        _partialPaid(employeeId);
+
+        uint salary = employees[employeeId].salary;
+        totalSalary = totalSalary.sub(salary);
+
         delete employees[employeeId];
     }
 
-    function changePaymentAddress(address oldAddress, address newAddress) employeeExist(oldAddress) public {
-        // TODO: your code here
-        var employee = employees[oldAddress];
-        _partialPaid(employee);
-        employees[oldAddress].id = newAddress;  
+    function changePaymentAddress(address oldAddress, address newAddress) public
+    onlyOwner shouldExist(oldAddress) shouldNotExist(newAddress) {
+        _partialPaid(oldAddress);
+
+        employees[newAddress] = Employee(employees[oldAddress].salary, now);
+        delete employees[oldAddress];
     }
 
-    function updateEmployee(address employeeId, uint salary) onlyOwner employeeExist(employeeAddress) public {
-        // TODO: your code here
-        var employee = employees[employeeId];
+    function updateEmployee(address employeeId, uint salary) public
+    onlyOwner shouldExist(employeeId) {
+        _partialPaid(employeeId);
 
-        _partialPaid(employee);
-        totalSalary -= employees[employeeId].salary;
-        employees[employeeId].salary = salary * 1 ether;
-        totalSalary += employees[employeeId].salary;
+        uint oldSalary = employees[employeeId].salary;
+        salary = salary.mul(1 ether);
+
+        employees[employeeId].salary = salary;
         employees[employeeId].lastPayday = now;
+        totalSalary = totalSalary.add(salary).sub(oldSalary);
     }
 
     function addFund() payable public returns (uint) {
@@ -73,23 +93,20 @@ contract Payroll is Ownable {
     }
 
     function calculateRunway() public view returns (uint) {
-        // TODO: your code here
-        return this.balance / totalSalary;
+        return address(this).balance.div(totalSalary);
     }
 
     function hasEnoughFund() public view returns (bool) {
-        // TODO: your code here
         return calculateRunway() > 0;
     }
 
-    function getPaid() public employeeExist(msg.sender) {
-        // TODO: your code here
-        var employee = employees[msg.sender];
-        
-        uint nextPayDay = employee.lastPayday + payDuration;
-        assert(nextPayDay < now);
-       
-        employees[msg.sender].lastPayday = nextPayDay;
-        employee.id.transfer(employee.salary);
+    function getPaid() public shouldExist(msg.sender) {
+        address employeeId = msg.sender;
+
+        uint nextPayday = employees[employeeId].lastPayday.add(payDuration);
+        assert(nextPayday < now);
+
+        employees[employeeId].lastPayday = nextPayday;
+        employeeId.transfer(employees[employeeId].salary);
     }
 }
