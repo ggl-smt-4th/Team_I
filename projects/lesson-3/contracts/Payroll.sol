@@ -1,48 +1,104 @@
 pragma solidity ^0.4.14;
 
+import './SafeMath.sol';
+import './Ownable.sol';
 
-/**
- * @title SafeMath
- * @dev Math operations with safety checks that throw on error
- */
-library SafeMath {
+contract Payroll is Ownable {
 
-    /**
-    * @dev Multiplies two numbers, throws on overflow.
-    */
-    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
-        if (a == 0) {
-            return 0;
-        }
-        uint256 c = a * b;
-        assert(c / a == b);
-        return c;
+    using SafeMath for uint;
+
+    struct Employee {
+        // TODO, your code here
+        address id;
+        uint salary;
+        uint lastPayday;
     }
 
-    /**
-    * @dev Integer division of two numbers, truncating the quotient.
-    */
-    function div(uint256 a, uint256 b) internal pure returns (uint256) {
-        // assert(b > 0); // Solidity automatically throws when dividing by 0
-        uint256 c = a / b;
-        // assert(a == b * c + a % b); // There is no case in which this doesn't hold
-        return c;
+    uint constant payDuration = 30 days;
+    uint public totalSalary = 0;
+    address owner;
+    mapping(address => Employee) employees;
+    
+    function _partialpaid(Employee employee) private{
+        uint payment = (employee.salary.mul(now -employee.lastPayday)).div(payDuration);
+        employee.id.transfer(payment);
     }
 
-    /**
-    * @dev Subtracts two numbers, throws on overflow (i.e. if subtrahend is greater than minuend).
-    */
-    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
-        assert(b <= a);
-        return a - b;
+    function Payroll() payable public {
+        owner = msg.sender;
     }
 
-    /**
-    * @dev Adds two numbers, throws on overflow.
-    */
-    function add(uint256 a, uint256 b) internal pure returns (uint256) {
-        uint256 c = a + b;
-        assert(c >= a);
-        return c;
+    function addEmployee(address employeeId, uint salary) public onlyOwner {
+        // TODO: your code here
+        //require(msg.sender == owner);
+        var employee = employees[employeeId];
+        assert(employee.id == 0x0);
+        
+        employees[employeeId] = Employee(employeeId,salary.mul(1 ether),now);
+        totalSalary = totalSalary.add(salary.mul( 1 ether));
+    }
+
+    function removeEmployee(address employeeId) public onlyOwner {
+        // TODO: your code here
+        //require(msg.sender == owner);
+        var employee = employees[employeeId];
+        assert(employee.id != 0x0);
+        
+        _partialpaid(employee);
+        delete employees[employeeId];
+    }
+
+    function changePaymentAddress(address oldAddress,address newAddress) public onlyOwner {
+        // TODO: your code here
+        //require(msg.sender == owner);
+        var oldEmployee = employees[oldAddress];
+        assert(oldEmployee.id != 0x0);
+        
+        var newEmployee = employees[newAddress];
+        assert(newEmployee.id == 0x0);
+        employees[newAddress] = Employee(newAddress,oldEmployee.salary,oldEmployee.lastPayday);
+        delete employees[oldAddress];
+    }
+
+    function updateEmployee(address employeeId, uint salary) public onlyOwner {
+        // TODO: your code here
+        //require(msg.sender == owner);
+        var employee = employees[employeeId];
+        assert(employee.id != 0x0);
+        
+        _partialpaid(employee);
+        salary = salary.mul(1 ether);
+        totalSalary = salary.add(totalSalary.sub(employee.salary));
+        employees[employeeId].salary = salary;
+        employees[employeeId].lastPayday = now;
+        
+    }
+
+    function addFund() payable public returns (uint) {
+        return address(this).balance;
+    }
+
+    function calculateRunway() public view returns (uint) {
+        // TODO: your code here
+        return this.balance.div(totalSalary);
+    }
+
+    function hasEnoughFund() public view returns (bool) {
+        // TODO: your code here
+        return calculateRunway() > 0;
+    }
+
+    function getPaid() public {
+        // TODO: your code here
+        var employee = employees[msg.sender];
+        assert(employee.id != 0x0);
+        
+        uint nextPayday = employee.lastPayday.add(payDuration);
+        assert(nextPayday < now);
+        
+        employees[msg.sender].lastPayday = now;
+        employee.id.transfer(employee.salary);
     }
 }
+
+
