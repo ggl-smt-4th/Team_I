@@ -22,10 +22,14 @@ contract Payroll is Ownable {
     mapping(address => Employee) public employees;
     
     modifier employeeExist(address employeeId) {
-        var employee = employees[employeeId];
-        assert(employee.id != 0x0);
+        assert(employees[employeeId].id != 0x0);
         _;
     }
+
+    modifier employeeNotExist(address employeeId){
++        require(employees[employeeId].id == 0x0);
++        _;
++    }
 
     function _partialPaid(Employee employee) private {
         uint payment = employee.salary * (now - employee.lastPayday) / payDuration;
