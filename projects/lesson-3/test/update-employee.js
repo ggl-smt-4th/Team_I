@@ -11,6 +11,7 @@ contract('Payroll', function (accounts) {
   const payDuration = (30 + 1) * 86400;
 
   let payroll;
+  
 
   beforeEach("Setup contract for each test cases", () => {
     return Payroll.new.call(owner, {from: owner, value: web3.toWei(fund, 'ether')}).then(instance => {
