@@ -1,7 +1,7 @@
 pragma solidity ^0.4.17;
 
-import "./SafeMath.sol";
-import "./Ownable.sol";
+import './SafeMath.sol';
+import './Ownable.sol';
 
 contract Payroll is Ownable {
 
