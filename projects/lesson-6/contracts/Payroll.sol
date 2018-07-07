@@ -60,7 +60,6 @@ contract Payroll is Ownable {
 
     function addEmployee(address employeeId, uint salary) public onlyOwner shouldNotExist(employeeId) {
         salary = salary.mul(1 ether);
-
         uint index = employeeAddressList.length;
         employeeAddressList.push(employeeId);
         employees[employeeId] = Employee(index, salary, now);
@@ -92,7 +91,6 @@ contract Payroll is Ownable {
 
     function changePaymentAddress(address oldAddress, address newAddress) public onlyOwner shouldExist(oldAddress) shouldNotExist(newAddress) {
         _partialPaid(oldAddress);
-
         employees[newAddress] = Employee(employees[oldAddress].index, employees[oldAddress].salary, now);
         delete employees[oldAddress];
     }
@@ -104,6 +102,7 @@ contract Payroll is Ownable {
         salary = salary.mul(1 ether);
 
         employees[employeeId].salary = salary;
+        
         employees[employeeId].lastPayday = now;
         totalSalary = totalSalary.add(salary).sub(oldSalary);
 
